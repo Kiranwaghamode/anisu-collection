@@ -1,116 +1,96 @@
-# Remaining Build Plan (no payments or Shiprocket for now)
+# Build Plan & Progress (Anisu Collection)
 
-> **Supersedes the remaining phases of `BUILD_PLAN.md`.** Sections 0–3 of `BUILD_PLAN.md` (design system,
-> mobile-first rules, data model, folder structure) and its "Out of Scope" list still apply.
+> **This file is the source of truth for what's left.** It replaces the remaining phases of `BUILD_PLAN.md`.
+> Sections 0–3 of `BUILD_PLAN.md` (design system, mobile-first rules, data model, folder structure) and its
+> "Out of Scope" list still apply.
 >
-> **Owner's decision (2026-10-07):** launch with **Cash on Delivery only**. Razorpay and Shiprocket are
-> postponed (see "Later" at the bottom). Orders the site can't take (e.g. COD above ₹10,000) go to WhatsApp.
+> **Owner's decisions**
+> - 2026-10-07: launch with **Cash on Delivery only**. Razorpay and Shiprocket are postponed. Orders the site
+>   can't take (COD above ₹10,000) go to WhatsApp.
+> - 2026-10-07: the **Telegram owner alert is postponed** too. Customers still get emails.
 >
-> Same workflow as before: build one phase at a time, check its "Done when" list, commit, then stop for
-> the owner's review.
+> Workflow: one phase at a time → check its "Done when" list → commit → stop for the owner's review.
 
 ## Status
 
-| Phase | What | Status |
-|---|---|---|
-| 1 | Foundation and design system | ✅ Done |
-| 2 | Storefront (browse products) | ✅ Done |
-| 3 | Cart and COD checkout | ✅ Done |
-| **4** | **Admin panel** | Next |
-| **5** | **Notifications (Telegram + email)** | To do |
-| **6** | **SEO, legal pages and launch** | To do |
-| — | Razorpay online payments | Later |
-| — | Shiprocket shipping | Later |
-
-The admin panel comes before notifications because the Telegram alert links to the admin order page,
-and the "shipped" email is sent when the owner marks an order shipped in the admin.
+| Phase | What | Status | Commit |
+|---|---|---|---|
+| 1 | Foundation and design system | ✅ Done | `4828814` |
+| 2 | Storefront (browse products) | ✅ Done | `12945f3` |
+| 3 | Cart and COD checkout | ✅ Done | `03a216c` |
+| 4 | Admin panel | ✅ Done | `6f793bc` |
+| **5** | **Customer emails** | 🟡 Built, waiting for Resend keys to test a real send | — |
+| **6** | **SEO, legal pages and launch** | ⏳ To do | — |
+| — | Telegram owner alert | 💤 Later | — |
+| — | Razorpay online payments | 💤 Later | — |
+| — | Shiprocket shipping | 💤 Later | — |
 
 ---
 
-## PHASE 4: Admin Panel
+## ✅ What's built so far
 
-**Goal:** The owner can manage products and orders from a phone or laptop.
+### Phase 1: Foundation
+- Next.js 16 (App Router, Cache Components) + TypeScript + Tailwind 4 + shadcn/ui, Prisma 7 + Neon Postgres
+- Design tokens (off-white, maroon accent), Cormorant Garamond + Inter, safe-area and 44px tap-target utilities
+- Header (mobile menu bottom sheet, search, cart count), footer, floating WhatsApp button
+- Database schema, migrations, seed data (4 categories, 12 products, sold-out test cases)
 
-Plain and functional, **mobile first**: orders as cards on phones (table only on desktop), top/bottom
-menu on phones (sidebar only on desktop), large action buttons.
+### Phase 2: Storefront
+- Home: hero, category tiles, New Arrivals swipe row, Featured, brand story, trust strip
+- Listings (`/sarees`, `/kurtis`, `/category/[slug]`): filters (category, size, colour, fabric, occasion, price),
+  sort, "Load more", state kept in the URL; Filter/Sort bottom sheets on phones
+- Product page: swipe gallery with tap-to-zoom, size picker (sold-out sizes disabled), quantity,
+  sticky Add to Cart / Buy Now bar, details accordion, Ask on WhatsApp, "You may also like"
+- Search (header search sheet + `/search`), loading skeletons, custom 404
+- Catalog cached and refreshed every 5 minutes, or instantly when the admin saves
 
-### Tasks
-1. **Auth:** `/admin/login` password form, compared with `ADMIN_PASSWORD` in constant time. On success, set a
-   signed HTTP-only cookie (`jose`, 7-day expiry, `ADMIN_SESSION_SECRET`). `proxy.ts` (Next 16's name for
-   `middleware.ts`) protects everything under `/admin` except the login page, and every admin server action
-   re-checks the session. Rate-limit login: 5 attempts per 15 minutes per IP. Logout button.
-2. **Orders list** (admin home):
-   - Order number, date, customer, phone, total, status badge (cards on phones, table on desktop)
-   - Status tabs: Placed · Confirmed · Shipped · Delivered · Cancelled/RTO · All
-   - Newest first; search by order number or phone
-3. **Order detail page:**
-   - Customer and address details with copy buttons, items with images, price breakdown
-   - **Call customer** (`tel:`) and **WhatsApp customer** links (for confirming COD orders)
-   - Admin note field
-   - Actions by status:
-     - `PLACED` → **Confirm** · **Cancel**
-     - `CONFIRMED` → **Mark Shipped** (form: courier name, tracking number/AWB, tracking link optional) · **Cancel**
-     - `SHIPPED` → **Mark Delivered** · **Mark RTO** (returned to us)
-   - **Cancel** and **Mark RTO** put the items' stock back. Each status change is guarded so a double tap
-     can't apply it twice.
-4. **Products list:** image, name, category, price, total stock, active toggle; search by name.
-5. **Product form** (create and edit):
-   - Fields: name, slug (auto from name, editable), type, category, price (typed in ₹, stored in paise), MRP,
-     fabric, colour, occasion, description, details, care, weight, featured, active
-   - **Images:** signed upload to Cloudinary (`/api/cloudinary/sign`), straight from the phone camera or
-     gallery; several at once; reorder with large up/down buttons; delete
-   - **Variants:** SAREE → one "Free Size" row with stock. KURTI → one row per size (S–XXL) with stock.
-     SKU generated automatically.
-   - On save, `updateTag(CATALOG_TAG)` so the storefront updates immediately
-6. **Categories:** add, edit, reorder, delete (blocked while the category has products). Fields: name, slug,
-   type, image (Cloudinary upload).
-7. **Checkout tweak:** when COD isn't available (order above ₹10,000), show a **"Order on WhatsApp"** button
-   with the cart items prefilled in the message. "Pay Online" stays visible as "Coming soon".
+### Phase 3: Cart and COD checkout
+- Cart drawer + `/cart`, live prices and stock checked against the database
+- Checkout form: right keyboards, autofill, validation, sticky "Place Order · ₹total"
+- `POST /api/checkout`: server-side pricing, stock taken safely in one transaction (no overselling),
+  order numbers AC1001, AC1002… from a database sequence; double taps can't create two orders
+- Order confirmation (needs the matching phone) and `/track` with a status timeline
+
+### Phase 4: Admin panel (`/admin`)
+- Password login (7-day signed cookie, 5 attempts per 15 minutes), every page and action protected
+- Orders: status tabs, search, detail page with copy buttons, Call / WhatsApp (pre-written message),
+  admin note; Confirm → Mark shipped (courier, tracking number, link) → Delivered, plus Cancel and RTO
+  (both restock); Delivered marks COD as paid
+- Products: list with Live/Hidden switch; add/edit form with photo upload from camera or gallery
+  (Cloudinary, resized on the phone), stock per size, auto SKUs, filter-friendly suggestions
+- Categories: add, edit, reorder (home tile order), delete (blocked while in use)
+- Checkout: "Order on WhatsApp" when COD isn't available (above ₹10,000)
+
+### Phase 5: Customer emails (built, not yet committed)
+- `lib/email.ts` (Resend) + React Email templates in `src/emails/`:
+  - **Order placed:** items with photos, totals, payment, address, "Track your order" button
+  - **Order shipped** (sent when the owner clicks Mark shipped): courier, tracking number, tracking link
+- Sent with `after()` once the response has gone out; if Resend is down or keys are missing, the order or
+  admin action still succeeds and the problem is logged
+- `scripts/preview-notifications.tsx AC1001` renders both emails to `.previews/` for checking the design
+- Tested: the emails render inside Next.js and reach Resend (rejected with a fake key, as expected), and
+  the order still goes through. Still to check: a real send with the owner's key.
+
+---
+
+## 🟡 PHASE 5: Customer emails (finish)
+
+### Remaining
+1. Owner adds `RESEND_API_KEY` and `EMAIL_FROM` to `.env` (not `.env.example`).
+2. Send one real "placed" and one "shipped" email and check them in Gmail on a phone (looks, spam folder, links).
+3. Commit Phase 5.
 
 ### Done when
-- [ ] From a phone, the owner can add a saree with camera photos, then confirm and ship an order
-- [ ] Confirm, cancel, ship, delivered and RTO all work, and stock stays correct
-- [ ] `/admin` pages and admin actions can't be used without logging in; login is rate-limited
+- [ ] The customer receives the "placed" email, and the "shipped" email after Mark shipped
 
 ### Needs from the owner
-- `ADMIN_PASSWORD` (I generate `ADMIN_SESSION_SECRET`)
-- A free Cloudinary account: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- A Resend account (free tier: 3,000 emails/month, 100/day): `RESEND_API_KEY`
+- `EMAIL_FROM`, e.g. `Anisu Collection <orders@yourdomain.in>`. Until the domain is verified in Resend,
+  emails can only be sent to the Resend account owner's own address (fine for testing).
 
 ---
 
-## PHASE 5: Notifications
-
-**Goal:** The owner knows about every order instantly, and the customer gets confirmations.
-
-### Tasks
-1. **Telegram alert to the owner** (`lib/telegram.ts`) when a COD order is placed:
-   ```
-   🛍️ NEW ORDER AC1001
-   Payment: COD (₹2,548)
-   Items:
-   • Peacock Paithani Silk Saree (Free Size) × 1
-   Customer: Priya S, 98XXXXXX21
-   Pune, Maharashtra 411038
-   👉 <SITE_URL>/admin/orders/<id>
-   ```
-2. **Customer emails** (`lib/email.ts`, Resend + React Email, simple branded template):
-   - **Order placed:** order number, items, total, payment method, address, link to the track page
-   - **Order shipped** (sent when the owner clicks Mark Shipped): courier, tracking number, tracking link
-3. **Failures never block orders.** Notifications run after the response (`after()`), wrapped in try/catch
-   and logged. Checkout and admin actions succeed even if Telegram or email is down.
-
-### Done when
-- [ ] The owner gets a Telegram message within seconds of a COD order
-- [ ] The customer receives the "placed" email, and the "shipped" email after Mark Shipped
-
-### Needs from the owner
-- A Telegram bot (via @BotFather) and the chat ID: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
-- A Resend account with the store's domain verified: `RESEND_API_KEY`, `EMAIL_FROM`
-  (until the domain is verified, Resend only delivers to the account owner's own email)
-
----
-
-## PHASE 6: SEO, Legal Pages and Launch
+## ⏳ PHASE 6: SEO, Legal Pages and Launch
 
 **Goal:** The site is ready for Google and ready for real customers.
 
@@ -126,17 +106,18 @@ menu on phones (sidebar only on desktop), large action buttons.
    price "3499.00 INR", availability, brand, condition "new",
    google_product_category "Apparel & Accessories > Clothing").
 5. **Image SEO:** product image `alt` = name + colour + fabric; correct `sizes`.
-6. **Static pages** (the owner edits the text): About, Contact (phone, email, WhatsApp, address),
+6. **Static pages** (drafts for the owner to edit): About, Contact (phone, email, WhatsApp, address),
    Privacy Policy, Terms & Conditions, Shipping Policy, Refund & Exchange Policy. These are also required
    before Razorpay will activate an account later.
-7. **Performance and polish pass:** Cloudinary `f_auto,q_auto` images, no unneeded client JS on storefront
-   pages, Lighthouse mobile 90+. Test every page on a real Android phone (4G) and an iPhone (Safari).
+7. **Performance and polish pass:** serve Cloudinary images with `f_auto,q_auto` (custom image loader),
+   no unneeded client JS on storefront pages, Lighthouse mobile 90+. Test every page on a real Android phone
+   (4G) and an iPhone (Safari).
 8. **Security pass:** Zod on all inputs, secrets only on the server, admin protected, no client prices,
    `.env` git-ignored, no secrets in `.env.example`.
 9. **Deploy:** import the GitHub repo in Vercel, add env variables, connect the domain, run
    `prisma migrate deploy` on production, submit the sitemap in Search Console and `/feed.xml` in Merchant Center.
 10. **Launch test on production:** place one real COD order, take it through Confirm → Shipped → Delivered
-    in the admin, check the Telegram alert and both emails, then cancel or clean it up.
+    in the admin, check both emails, then cancel or clean it up.
 
 ### Done when
 - [ ] Google's Rich Results Test passes for a product page
@@ -146,21 +127,37 @@ menu on phones (sidebar only on desktop), large action buttons.
 - [ ] The production test order works end to end
 
 ### Needs from the owner
-- A Vercel account, the domain name, and the final text for the About and policy pages
-  (I'll write sensible drafts to edit)
+- A Vercel account, the domain name, the real store contact details (`src/config/store.ts` still has
+  placeholders) and the final text for the About and policy pages (I'll write drafts to edit)
+- Real product photos (Unsplash placeholders are still used for the seed products)
 
 ---
 
-## Later (postponed by the owner)
+## 💤 Later (postponed by the owner)
+
+### Telegram owner alert
+Instant Telegram message to the owner for every new order:
+```
+🛍️ NEW ORDER AC1001
+Payment: COD (₹2,548)
+Items:
+• Peacock Paithani Silk Saree (Free Size) × 1
+Customer: Priya S, 98XXXXXX21
+Pune, Maharashtra 411038
+👉 <SITE_URL>/admin/orders/<id>
+```
+Plug-in point: `notifyOrderPlaced()` in `src/lib/notify.ts`, which already runs after every order.
+Needs a bot from @BotFather (`TELEGRAM_BOT_TOKEN`) and the owner's chat id (`TELEGRAM_CHAT_ID`).
+Until then the owner sees new orders in the admin (the Placed tab shows a count).
 
 ### Razorpay online payments
 `BUILD_PLAN.md` Phase 4 as written: prepaid orders in `PENDING_PAYMENT`, Razorpay Checkout, server-side
 signature verification, webhook backup, "Try again / Switch to COD", and a cron job that cancels unpaid
 orders after 30 minutes and restores stock. The database already has the Razorpay fields, and the test
-keys are saved in the local `.env`. The Telegram alert and "placed" email will also fire when a prepaid
-payment succeeds.
+keys are saved in the local `.env`. The "placed" email (and Telegram alert, once added) should also fire
+when a prepaid payment succeeds.
 
 ### Shiprocket shipping
 `BUILD_PLAN.md` Phase 7 as written: one-click ship (order → AWB → pickup), label download, tracking
-webhook (Delivered / RTO / NDR alerts). It will replace the manual **Mark Shipped** form as the main way
-to ship; the manual form stays as a fallback. The database already has the Shiprocket fields.
+webhook (Delivered / RTO / NDR). It will become the main way to ship; the manual **Mark shipped** form stays
+as a fallback, and the "shipped" email already fires from there. The database already has the Shiprocket fields.
