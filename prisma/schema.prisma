@@ -1,0 +1,137 @@
+// Data model — see BUILD_PLAN.md Section 2.
+// All money fields are integers in paise (₹1 = 100 paise).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProductType {
+  SAREE
+  KURTI
+}
+
+enum PaymentMethod {
+  COD
+  PREPAID
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT // prepaid order created, payment not finished
+  PLACED // COD placed, or prepaid paid → waiting for owner
+  CONFIRMED // owner confirmed (for COD: after calling the customer)
+  SHIPPED // AWB created, handed to courier
+  DELIVERED
+  CANCELLED
+  RTO // returned to origin (undelivered)
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Category {
+  id        String      @id @default(cuid())
+  name      String // "Silk Sarees"
+  slug      String      @unique // "silk-sarees"
+  type      ProductType
+  image     String? // Cloudinary URL for the homepage tile
+  sortOrder Int         @default(0)
+  products  Product[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String      @db.Text // plain text or simple markdown
+  type        ProductType
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  price       Int // paise, selling price
+  mrp         Int? // paise, shown struck-through if > price
+  fabric      String?
+  color       String?
+  occasion    String? // "Wedding", "Office", "Festive", "Daily"
+  careInfo    String? // "Dry clean only"
+  details     String?     @db.Text // saree length, blouse piece, kurti fit, etc.
+  images      String[] // Cloudinary URLs, first = main image
+  weightGrams Int         @default(500) // for shipping
+  isActive    Boolean     @default(true)
+  isFeatured  Boolean     @default(false)
+  variants    Variant[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId])
+  @@index([type, isActive, createdAt])
+}
+
+// Sarees have ONE variant with size "Free Size". Kurtis have one per size.
+model Variant {
+  id         String      @id @default(cuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size       String // "Free Size", "S", "M", "L", "XL", "XXL"
+  stock      Int         @default(0)
+  sku        String      @unique
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+model Order {
+  id                   String        @id @default(cuid())
+  orderNumber          String        @unique // human readable, e.g. "AC1045"
+  customerName         String
+  phone                String // 10-digit Indian mobile
+  email                String
+  addressLine1         String
+  addressLine2         String?
+  city                 String
+  state                String
+  pincode              String // 6 digits
+  items                OrderItem[]
+  subtotal             Int // paise
+  shippingFee          Int // paise
+  codFee               Int // paise (0 for prepaid)
+  total                Int // paise
+  paymentMethod        PaymentMethod
+  paymentStatus        PaymentStatus @default(PENDING)
+  status               OrderStatus
+  razorpayOrderId      String?       @unique
+  razorpayPaymentId    String?
+  shiprocketOrderId    String?
+  shiprocketShipmentId String?
+  awbCode              String?
+  courierName          String?
+  trackingUrl          String?
+  adminNote            String?       @db.Text
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([status, createdAt])
+  @@index([phone])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId   String
+  variant     Variant @relation(fields: [variantId], references: [id])
+  productName String // snapshot at time of order
+  size        String // snapshot
+  image       String // snapshot
+  unitPrice   Int // paise, snapshot
+  quantity    Int
+
+  @@index([orderId])
+}
