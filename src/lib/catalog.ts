@@ -1,7 +1,7 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import type { Prisma, ProductType } from "@/generated/prisma/client";
-import { KURTI_SIZES } from "@/config/store";
+import { KURTI_SIZES, SAREE_SIZE } from "@/config/store";
 import { db } from "./db";
 import { PAGE_SIZE, PRICE_RANGES, type ListingFilters } from "./listing-params";
 
@@ -119,7 +119,11 @@ export async function getProduct(slug: string) {
     },
   });
   if (!product) return null;
-  product.variants.sort((a, b) => sizeRank(a.size) - sizeRank(b.size));
+  // Only sizes that fit the product type (old sizes stay in the DB after a type change, for order history).
+  const valid = product.type === "SAREE" ? [SAREE_SIZE] : (KURTI_SIZES as readonly string[]);
+  product.variants = product.variants
+    .filter((v) => valid.includes(v.size))
+    .sort((a, b) => sizeRank(a.size) - sizeRank(b.size));
   return product;
 }
 

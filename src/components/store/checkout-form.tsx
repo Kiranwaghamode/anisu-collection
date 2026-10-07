@@ -17,9 +17,11 @@ import { COD_FEE, COD_MAX_ORDER_VALUE, SAREE_SIZE } from "@/config/store";
 import { INDIAN_STATES } from "@/config/india";
 import { checkoutSchema, customerSchema, type PaymentMethodInput } from "@/lib/checkout";
 import { formatINR } from "@/lib/money";
+import { whatsappUrl } from "@/lib/site";
 import type { CartQuote } from "@/lib/orders";
 import { useCart } from "@/stores/cart";
 import { BottomBar } from "./bottom-bar";
+import { WhatsAppIcon } from "./brand-icons";
 import { useCartQuote } from "./cart-quote";
 import { CartSkeleton, EmptyCart, hasProblems } from "./cart-view";
 
@@ -112,6 +114,15 @@ function SummaryLines({ quote, method }: { quote: CartQuote; method: PaymentMeth
       <p className="mt-1 text-xs text-muted-foreground">Inclusive of all taxes</p>
     </>
   );
+}
+
+/** WhatsApp message listing the cart, for orders the site can't take (COD above the limit). */
+function whatsappOrderLink(quote: CartQuote | null) {
+  const lines = (quote?.lines ?? []).map(
+    (l) => `• ${l.name}${l.size && l.size !== SAREE_SIZE ? ` (Size ${l.size})` : ""} × ${l.quantity} = ${formatINR(l.unitPrice * l.quantity)}`,
+  );
+  const total = quote ? `\nSubtotal: ${formatINR(quote.subtotal)}` : "";
+  return whatsappUrl(`Hi! I'd like to order:\n${lines.join("\n")}${total}`);
 }
 
 export function CheckoutForm() {
@@ -353,14 +364,21 @@ export function CheckoutForm() {
                 <span className="text-sm font-medium">+{formatINR(COD_FEE)}</span>
               </label>
             ) : (
-              <p className="rounded-md bg-muted p-4 text-sm">
-                Cash on Delivery isn&apos;t available for orders above {formatINR(COD_MAX_ORDER_VALUE)}. Online payment is
-                coming soon. Meanwhile, please{" "}
-                <Link href="/contact" className="font-medium text-accent underline">
-                  contact us
-                </Link>{" "}
-                to place this order.
-              </p>
+              <div className="rounded-md bg-muted p-4 text-sm">
+                <p>
+                  Cash on Delivery isn&apos;t available for orders above {formatINR(COD_MAX_ORDER_VALUE)}, and online
+                  payment is coming soon. Send us this order on WhatsApp and we&apos;ll help you complete it.
+                </p>
+                <a
+                  href={whatsappOrderLink(quote)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 flex h-12 items-center justify-center gap-2 rounded-md bg-[#25D366] font-medium text-white"
+                >
+                  <WhatsAppIcon className="size-5" />
+                  Order on WhatsApp
+                </a>
+              </div>
             )}
           </fieldset>
         </Section>
