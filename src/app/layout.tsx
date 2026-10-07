@@ -30,6 +30,9 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover", // lets env(safe-area-inset-*) work on notched phones
+  // Android: shrink the layout when the keyboard opens, so fixed bottom bars
+  // (e.g. "Place Order") stay above the keyboard instead of behind it.
+  interactiveWidget: "resizes-content",
   themeColor: "#FAF7F2",
 };
 

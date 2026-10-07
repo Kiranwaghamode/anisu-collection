@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { STORE_NAME } from "@/config/store";
 import { mainNav } from "@/config/nav";
-import { selectCartCount, useCart } from "@/stores/cart";
+import { selectCartCount, useCart, useCartDrawer, useCartHydrated } from "@/stores/cart";
 import { MobileMenu } from "./mobile-menu";
 import { SearchSheet } from "./search-sheet";
 
@@ -24,23 +24,16 @@ function useScrolled() {
   );
 }
 
-// `useCart.persist` only exists in the browser (no localStorage during prerender).
-const subscribeHydration = (cb: () => void) => useCart.persist?.onFinishHydration(cb) ?? (() => {});
-
 function useCartCount() {
   const count = useCart(selectCartCount);
   // The cart lives in localStorage, so show nothing until it has loaded on the client.
-  const hydrated = useSyncExternalStore(
-    subscribeHydration,
-    () => useCart.persist?.hasHydrated() ?? false,
-    () => false,
-  );
-  return hydrated ? count : 0;
+  return useCartHydrated() ? count : 0;
 }
 
 export function Header() {
   const scrolled = useScrolled();
   const count = useCartCount();
+  const openCart = useCartDrawer((s) => s.setOpen);
 
   return (
     <header
@@ -89,15 +82,19 @@ export function Header() {
               <SearchIcon />
             </Button>
           </SearchSheet>
-          <Button variant="ghost" size="icon" className="relative" asChild>
-            <Link href="/cart" aria-label={count ? `Cart, ${count} items` : "Cart"}>
-              <ShoppingBagIcon />
-              {count > 0 && (
-                <span className="absolute top-1.5 right-1 flex min-w-4.5 items-center justify-center rounded-full bg-accent px-1 text-[0.65rem] leading-4.5 font-semibold text-accent-foreground">
-                  {count > 9 ? "9+" : count}
-                </span>
-              )}
-            </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            onClick={() => openCart(true)}
+            aria-label={count ? `Cart, ${count} items` : "Cart"}
+          >
+            <ShoppingBagIcon />
+            {count > 0 && (
+              <span className="absolute top-1.5 right-1 flex min-w-4.5 items-center justify-center rounded-full bg-accent px-1 text-[0.65rem] leading-4.5 font-semibold text-accent-foreground">
+                {count > 9 ? "9+" : count}
+              </span>
+            )}
           </Button>
         </div>
       </div>

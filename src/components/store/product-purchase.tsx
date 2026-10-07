@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { MAX_QTY_PER_ITEM } from "@/config/store";
 import { formatINR } from "@/lib/money";
-import { useCart } from "@/stores/cart";
+import { useCart, useCartDrawer } from "@/stores/cart";
 import { BottomBar } from "./bottom-bar";
 import { PriceLine } from "./product-card";
 
@@ -70,6 +69,7 @@ function SizeButtons({
 export function ProductPurchase({ product, variants }: Props) {
   const router = useRouter();
   const add = useCart((s) => s.add);
+  const openCart = useCartDrawer((s) => s.setOpen);
 
   const isKurti = product.type === "KURTI";
   const soldOut = variants.every((v) => v.stock <= 0);
@@ -100,14 +100,8 @@ export function ProductPurchase({ product, variants }: Props) {
       unitPrice: product.price,
       quantity: Math.min(qty, variant.stock),
     });
-    if (intent === "buy") {
-      router.push("/checkout");
-    } else {
-      toast.success("Added to cart", {
-        description: isKurti ? `${product.name} · Size ${variant.size}` : product.name,
-        action: { label: "View cart", onClick: () => router.push("/cart") },
-      });
-    }
+    if (intent === "buy") router.push("/checkout");
+    else openCart(true);
   }
 
   /** `fromBar`: on phones, a missing size opens the size sheet instead of an inline error. */
