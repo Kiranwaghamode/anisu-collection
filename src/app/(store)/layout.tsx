@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "@/components/store/footer";
 import { Header } from "@/components/store/header";
 import { WhatsAppButton } from "@/components/store/whatsapp-button";
@@ -9,6 +10,8 @@ export default function StoreLayout({ children }: LayoutProps<"/">) {
       <main className="flex-1">{children}</main>
       <Footer />
       <WhatsAppButton />
+      {/* Top on phones so toasts never cover the sticky bottom bars */}
+      <Toaster position="top-center" theme="light" offset={{ top: 72 }} mobileOffset={{ top: 64 }} />
     </>
   );
 }

@@ -119,6 +119,33 @@
   }
 }
 
+/* Swipe rows: keep native scrolling, hide the bar. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Fixed bottom action bars (product page, listing Filter/Sort) */
+@utility h-bottom-bar {
+  height: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/*
+ * Set by useBottomBar() while a page shows a fixed bottom bar (phones only).
+ * Lifts the WhatsApp button above it and keeps the footer from hiding behind it.
+ */
+html.has-bottom-bar {
+  --sticky-bar-h: 4.5rem;
+  & body {
+    padding-bottom: var(--sticky-bar-h);
+  }
+  @media (width >= 48rem) {
+    --sticky-bar-h: 0px;
+  }
+}
+
 @utility tap {
   min-width: 44px;
   min-height: 44px;

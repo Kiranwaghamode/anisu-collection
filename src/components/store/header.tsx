@@ -9,6 +9,7 @@ import { STORE_NAME } from "@/config/store";
 import { mainNav } from "@/config/nav";
 import { selectCartCount, useCart } from "@/stores/cart";
 import { MobileMenu } from "./mobile-menu";
+import { SearchSheet } from "./search-sheet";
 
 function subscribeScroll(onChange: () => void) {
   window.addEventListener("scroll", onChange, { passive: true });
@@ -56,11 +57,11 @@ export function Header() {
               <MenuIcon />
             </Button>
           </MobileMenu>
-          <Button variant="ghost" size="icon" aria-label="Search" asChild>
-            <Link href="/search">
+          <SearchSheet>
+            <Button variant="ghost" size="icon" aria-label="Search">
               <SearchIcon />
-            </Link>
-          </Button>
+            </Button>
+          </SearchSheet>
         </div>
 
         <Link
@@ -83,11 +84,11 @@ export function Header() {
         </nav>
 
         <div className="-mr-3 flex items-center justify-end">
-          <Button variant="ghost" size="icon" aria-label="Search" className="hidden md:inline-flex" asChild>
-            <Link href="/search">
+          <SearchSheet>
+            <Button variant="ghost" size="icon" aria-label="Search" className="hidden md:inline-flex">
               <SearchIcon />
-            </Link>
-          </Button>
+            </Button>
+          </SearchSheet>
           <Button variant="ghost" size="icon" className="relative" asChild>
             <Link href="/cart" aria-label={count ? `Cart, ${count} items` : "Cart"}>
               <ShoppingBagIcon />
