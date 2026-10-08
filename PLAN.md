@@ -103,7 +103,7 @@ Everything in the code is done. These steps need your accounts. Do them in order
 and I'll help.
 
 ### 1. Fill in the last store details (`src/config/store.ts`)
-- `GRIEVANCE_OFFICER`: your full name (shown in the Privacy Policy and Terms; required by Indian e-commerce rules)
+- ✅ Grievance Officer set to Sunita Patgar (Privacy Policy and Terms)
 - `STORE_ADDRESS`: add the pincode; check `STORE_INSTAGRAM` and `STORE_HOURS`
 - `DISPATCH_DAYS`, `TRANSIT_DAYS`, `RETURN_WINDOW_DAYS`, `DAMAGE_REPORT_HOURS`: check they match how you work
 - Read the drafts of About and the four policy pages and change anything that isn't true for your shop

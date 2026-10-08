@@ -27,7 +27,7 @@ export const STORE_HOURS = "Monday to Saturday, 10 am to 7 pm";
  * Grievance Officer shown in the Privacy Policy and Terms (required by India's
  * Consumer Protection (E-Commerce) Rules, 2020). Usually the owner's full name.
  */
-export const GRIEVANCE_OFFICER = "Store Owner";
+export const GRIEVANCE_OFFICER = "Sunita Patgar";
 /** Courts named in the Terms & Conditions; usually the city where the business is registered. */
 export const STORE_JURISDICTION = "Bengaluru, Karnataka";
 
