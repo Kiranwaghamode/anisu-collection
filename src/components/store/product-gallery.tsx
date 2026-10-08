@@ -66,7 +66,7 @@ export function ProductGallery({
                   i === active ? "border-accent" : "border-transparent hover:border-border",
                 )}
               >
-                <Image src={src} alt="" fill sizes="88px" className="object-cover" />
+                <Image src={src} alt="" fill sizes="88px" className="object-cover object-top" />
               </button>
             </li>
           ))}
@@ -97,7 +97,7 @@ export function ProductGallery({
                 loading={i === 0 ? "eager" : undefined}
                 fetchPriority={i === 0 ? "high" : undefined}
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
+                className="object-cover object-top"
               />
             </button>
           ))}

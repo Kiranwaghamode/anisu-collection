@@ -83,7 +83,7 @@ export default async function Home() {
                         alt=""
                         fill
                         sizes="(max-width: 768px) 50vw, 25vw"
-                        className="object-cover transition duration-700 ease-out group-hover:scale-[1.03]"
+                        className="object-cover object-top transition duration-700 ease-out group-hover:scale-[1.03]"
                       />
                     )}
                   </span>

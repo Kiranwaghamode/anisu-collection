@@ -56,7 +56,8 @@ export function ProductCard({
             loading={eager ? "eager" : undefined}
             fetchPriority={eager ? "high" : undefined}
             className={cn(
-              "object-cover transition duration-700 ease-out group-hover:scale-[1.03]",
+              // Photos are often tall (9:16); keep the top (the face) in the 4:5 frame.
+              "object-cover object-top transition duration-700 ease-out group-hover:scale-[1.03]",
               product.soldOut && "opacity-70",
             )}
           />
@@ -68,7 +69,7 @@ export function ProductCard({
             alt=""
             fill
             sizes={sizes}
-            className="hidden object-cover opacity-0 transition duration-700 ease-out group-hover:scale-[1.03] group-hover:opacity-100 md:block"
+            className="hidden object-cover object-top opacity-0 transition duration-700 ease-out group-hover:scale-[1.03] group-hover:opacity-100 md:block"
           />
         )}
         {product.soldOut && (
