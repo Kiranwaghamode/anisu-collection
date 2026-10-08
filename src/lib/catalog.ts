@@ -4,6 +4,7 @@ import type { Prisma, ProductType } from "@/generated/prisma/client";
 import { KURTI_SIZES, SAREE_SIZE } from "@/config/store";
 import { db } from "./db";
 import { PAGE_SIZE, PRICE_RANGES, type ListingFilters } from "./listing-params";
+import { productImageAlt } from "./structured-data";
 
 /**
  * Every storefront read is cached and tagged with CATALOG_TAG.
@@ -22,6 +23,8 @@ const cardSelect = {
   price: true,
   mrp: true,
   images: true,
+  color: true,
+  fabric: true,
   variants: { select: { stock: true } },
 } satisfies Prisma.ProductSelect;
 
@@ -35,6 +38,8 @@ export type ProductCardData = {
   mrp: number | null;
   /** main image plus the optional hover image */
   images: string[];
+  /** describes the main image */
+  imageAlt: string;
   soldOut: boolean;
 };
 
@@ -46,6 +51,7 @@ function toCard(p: CardRow): ProductCardData {
     price: p.price,
     mrp: p.mrp,
     images: p.images.slice(0, 2),
+    imageAlt: productImageAlt(p),
     soldOut: p.variants.every((v) => v.stock <= 0),
   };
 }
@@ -262,4 +268,33 @@ export async function getFilterOptions(scope: ListingScope): Promise<FilterOptio
     // Sizes only matter when the listing contains kurtis.
     size: rows.some((r) => r.type === "KURTI") ? KURTI_SIZES.map((s) => ({ value: s, label: s })) : [],
   };
+}
+
+// ── Sitemap and Google Merchant feed ────────────────────────────
+
+/** Every live product with what the sitemap and the Merchant Center feed need. */
+export async function getProductsForFeed() {
+  "use cache";
+  cacheLife(CATALOG_LIFE);
+  cacheTag(CATALOG_TAG);
+  const rows = await db.product.findMany({
+    where: { isActive: true },
+    orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      description: true,
+      type: true,
+      price: true,
+      mrp: true,
+      color: true,
+      fabric: true,
+      images: true,
+      updatedAt: true,
+      category: { select: { name: true } },
+      variants: { select: { stock: true } },
+    },
+  });
+  return rows.map(({ variants, ...p }) => ({ ...p, inStock: variants.some((v) => v.stock > 0) }));
 }

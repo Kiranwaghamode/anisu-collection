@@ -50,7 +50,7 @@ export function ProductCard({
         {main && (
           <Image
             src={main}
-            alt={product.name}
+            alt={product.imageAlt}
             fill
             sizes={sizes}
             loading={eager ? "eager" : undefined}

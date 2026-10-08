@@ -10,10 +10,13 @@ import { PriceLine, ProductRow } from "@/components/store/product-card";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { ProductPurchase } from "@/components/store/product-purchase";
 import { SectionHeading } from "@/components/store/section-heading";
-import { COD_FEE, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE } from "@/config/store";
+import { JsonLd } from "@/components/json-ld";
+import { COD_FEE, DISPATCH_DAYS, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE } from "@/config/store";
 import { getActiveProductSlugs, getProduct, getRelated, type ProductDetail } from "@/lib/catalog";
 import { formatINR } from "@/lib/money";
-import { absoluteUrl, whatsappUrl } from "@/lib/site";
+import { shareImageUrl } from "@/lib/image-url";
+import { absoluteUrl, OG_DEFAULTS, whatsappUrl } from "@/lib/site";
+import { breadcrumbLd, productImageAlt, productLd } from "@/lib/structured-data";
 
 export async function generateStaticParams() {
   const slugs = await getActiveProductSlugs();
@@ -30,10 +33,11 @@ export async function generateMetadata({ params }: PageProps<"/product/[slug]">)
     description,
     alternates: { canonical: `/product/${product.slug}` },
     openGraph: {
+      ...OG_DEFAULTS,
       title: product.name,
       description,
       url: `/product/${product.slug}`,
-      images: product.images.slice(0, 1),
+      images: product.images.slice(0, 1).map((src) => ({ url: shareImageUrl(src), alt: productImageAlt(product) })),
     },
   };
 }
@@ -74,16 +78,27 @@ async function ProductContent({ params }: Pick<PageProps<"/product/[slug]">, "pa
 
   const productUrl = absoluteUrl(`/product/${product.slug}`);
   const askLink = whatsappUrl(`Hi! I'd like to know more about "${product.name}": ${productUrl}`);
+  const listing = product.type === "SAREE" ? { name: "Sarees", path: "/sarees" } : { name: "Kurtis", path: "/kurtis" };
+  const shipsIn = `Ships in ${DISPATCH_DAYS.min}–${DISPATCH_DAYS.max} days`;
 
   return (
     <>
+      <JsonLd data={productLd({ ...product, inStock: product.variants.some((v) => v.stock > 0) })} />
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Home", path: "/" },
+          listing,
+          { name: product.category.name, path: `/category/${product.category.slug}` },
+          { name: product.name, path: `/product/${product.slug}` },
+        ])}
+      />
       <div className="md:container-page md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:pt-8 lg:gap-16">
-        <ProductGallery images={product.images} name={product.name} />
+        <ProductGallery images={product.images} name={product.name} alt={productImageAlt(product)} />
 
         <div className="px-4 pt-5 md:sticky md:top-24 md:self-start md:px-0 md:pt-0">
           <nav aria-label="Breadcrumb" className="mb-2 flex items-center gap-1 text-sm text-muted-foreground">
-            <Link href={product.type === "SAREE" ? "/sarees" : "/kurtis"} className="hover:text-accent">
-              {product.type === "SAREE" ? "Sarees" : "Kurtis"}
+            <Link href={listing.path} className="hover:text-accent">
+              {listing.name}
             </Link>
             <ChevronRightIcon className="size-3.5" aria-hidden />
             <Link href={`/category/${product.category.slug}`} className="hover:text-accent">
@@ -108,7 +123,7 @@ async function ProductContent({ params }: Pick<PageProps<"/product/[slug]">, "pa
           />
 
           <ul className="mt-6 grid gap-1.5 text-sm">
-            {["Cash on Delivery available", `Free shipping above ${formatINR(FREE_SHIPPING_THRESHOLD)}`, "Ships in 1–2 days"].map(
+            {["Cash on Delivery available", `Free shipping above ${formatINR(FREE_SHIPPING_THRESHOLD)}`, shipsIn].map(
               (t) => (
                 <li key={t} className="flex items-center gap-2">
                   <CheckIcon className="size-4 text-accent" aria-hidden />
@@ -156,7 +171,9 @@ async function ProductContent({ params }: Pick<PageProps<"/product/[slug]">, "pa
                       {formatINR(SHIPPING_FEE)}.
                     </li>
                     <li>Cash on Delivery available (+{formatINR(COD_FEE)}).</li>
-                    <li>Ships in 1–2 business days.</li>
+                    <li>
+                      Ships in {DISPATCH_DAYS.min}–{DISPATCH_DAYS.max} business days.
+                    </li>
                     <li>
                       Easy exchange. See our <Link href="/refund-policy">Refund &amp; Exchange policy</Link>.
                     </li>

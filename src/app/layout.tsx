@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { STORE_NAME, STORE_TAGLINE } from "@/config/store";
+import { OG_DEFAULTS, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,13 +18,15 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: `${STORE_NAME} | ${STORE_TAGLINE}`,
     template: `%s | ${STORE_NAME}`,
   },
   description:
     "Shop handpicked silk and cotton sarees and kurtis online. Cash on Delivery and free shipping above ₹999 across India.",
+  openGraph: OG_DEFAULTS,
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

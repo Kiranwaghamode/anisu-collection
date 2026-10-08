@@ -1,26 +1,37 @@
 "use client";
 
-import { LazyMotion, MotionConfig, domAnimation, m } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 /**
  * Section entrance: fade + 8px slide-up, 0.4s, once (BUILD_PLAN Section 1).
- * With reduced motion the slide is dropped and only the fade remains.
+ * Plain CSS transition (the `reveal` utility in globals.css), so no animation library is shipped.
+ * With reduced motion, the global rule in globals.css makes it instant.
  * Don't wrap above-the-fold content: it starts hidden and would delay LCP.
  */
 export function Reveal({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -60px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <LazyMotion features={domAnimation} strict>
-      <MotionConfig reducedMotion="user">
-        <m.div
-          className={className}
-          initial={{ opacity: 0, y: 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "0px 0px -60px 0px" }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-          {children}
-        </m.div>
-      </MotionConfig>
-    </LazyMotion>
+    <div ref={ref} data-shown={shown || undefined} className={cn("reveal", className)}>
+      {children}
+    </div>
   );
 }

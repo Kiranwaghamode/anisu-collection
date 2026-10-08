@@ -146,6 +146,17 @@ html.has-bottom-bar {
   }
 }
 
+/* Section entrance used by <Reveal>: hidden until scrolled into view. */
+@utility reveal {
+  transition:
+    opacity 0.4s ease-out,
+    translate 0.4s ease-out;
+  &:not([data-shown]) {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
 @utility tap {
   min-width: 44px;
   min-height: 44px;

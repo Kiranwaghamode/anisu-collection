@@ -1,13 +1,20 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { BanknoteIcon, RefreshCwIcon, ShieldCheckIcon, TruckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { JsonLd } from "@/components/json-ld";
 import { ProductGrid, ProductRow } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/reveal";
 import { SectionHeading } from "@/components/store/section-heading";
 import { FREE_SHIPPING_THRESHOLD, STORE_NAME } from "@/config/store";
 import { getCategories, getFeatured, getNewArrivals } from "@/lib/catalog";
 import { formatINR } from "@/lib/money";
+import { organizationLd, websiteLd } from "@/lib/structured-data";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 // TODO(owner): replace these placeholder photos with your own.
 const HERO_IMAGE =
@@ -31,6 +38,8 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd data={organizationLd()} />
+      <JsonLd data={websiteLd()} />
       {/* 1. Hero */}
       <section className="relative isolate flex min-h-[78dvh] items-end overflow-hidden md:min-h-[82dvh] md:items-center">
         <Image

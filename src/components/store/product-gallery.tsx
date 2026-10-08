@@ -36,7 +36,16 @@ function Dots({ count, active }: { count: number; active: number }) {
  * Phones: edge-to-edge swipe gallery with dots. Desktop: thumbnails on the left.
  * Tapping an image opens a fullscreen viewer (tap to zoom, pinch works natively).
  */
-export function ProductGallery({ images, name }: { images: string[]; name: string }) {
+export function ProductGallery({
+  images,
+  name,
+  alt = name,
+}: {
+  images: string[];
+  name: string;
+  /** Describes the main photo (name, colour, fabric). */
+  alt?: string;
+}) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [zoomAt, setZoomAt] = useState<number | null>(null);
@@ -82,7 +91,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
             >
               <Image
                 src={src}
-                alt={i === 0 ? name : `${name}, view ${i + 1}`}
+                alt={i === 0 ? alt : `${alt}, view ${i + 1}`}
                 fill
                 // Rendered inside a Suspense boundary, so a <head> preload would arrive too late.
                 loading={i === 0 ? "eager" : undefined}
