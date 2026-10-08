@@ -6,9 +6,11 @@ const CLOUDINARY_UPLOAD = /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/uploa
 /**
  * Cloudinary: insert a transformation, e.g. "f_auto,q_auto,c_limit,w_640".
  * Unsplash (placeholder photos): set the width and format query params.
+ * Files in /public are served as they are (the width param only keeps next/image happy).
  * Anything else is returned unchanged.
  */
 export function resizedImageUrl(src: string, width: number): string {
+  if (src.startsWith("/")) return `${src}?w=${width}`;
   if (CLOUDINARY_UPLOAD.test(src)) {
     return src.replace(CLOUDINARY_UPLOAD, `$1f_auto,q_auto,c_limit,w_${width}/`);
   }

@@ -9,6 +9,18 @@ export const STORE_EMAIL = "kiranwaghamode99@gmail.com";
 export const STORE_WHATSAPP = "919535980590";
 export const STORE_ADDRESS = "Uttara halli, Bangalore";
 export const STORE_INSTAGRAM = "https://instagram.com/anisucollection";
+/** Founder's note at the top of the footer. */
+export const FOUNDER = {
+  name: "Sunita Patgar",
+  title: "Founder & CEO",
+  quote:
+    "I started this brand to give the women around me clothing they truly deserve: beautiful, comfortable, and made to last.",
+  /**
+   * Profile photo: a square photo in the `public` folder (e.g. "/founder.jpg") or a Cloudinary URL.
+   * Leave empty to show the founder's initials instead.
+   */
+  photo: "",
+};
 /** When customers can expect a reply (Contact page). */
 export const STORE_HOURS = "Monday to Saturday, 10 am to 7 pm";
 /**

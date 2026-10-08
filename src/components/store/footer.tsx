@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cacheLife } from "next/cache";
 import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import {
+  FOUNDER,
   STORE_ADDRESS,
   STORE_EMAIL,
   STORE_INSTAGRAM,
@@ -17,6 +19,38 @@ async function currentYear() {
   "use cache";
   cacheLife("days");
   return new Date().getFullYear();
+}
+
+function FounderNote() {
+  const initials = FOUNDER.name
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2);
+  return (
+    <figure className="mb-10 flex items-center gap-5 border-b border-border pb-10 md:mb-14 md:gap-8 md:pb-14">
+      <div className="relative size-20 shrink-0 overflow-hidden rounded-full bg-accent md:size-28">
+        {FOUNDER.photo ? (
+          <Image src={FOUNDER.photo} alt={FOUNDER.name} fill sizes="(max-width: 768px) 80px, 112px" className="object-cover" />
+        ) : (
+          <span
+            className="flex size-full items-center justify-center font-heading text-3xl text-accent-foreground md:text-4xl"
+            aria-hidden
+          >
+            {initials}
+          </span>
+        )}
+      </div>
+      <div className="min-w-0 max-w-2xl">
+        <blockquote className="font-heading text-xl leading-snug text-foreground md:text-3xl">
+          &ldquo;{FOUNDER.quote}&rdquo;
+        </blockquote>
+        <figcaption className="mt-3 text-sm text-muted-foreground md:text-[0.95rem]">
+          — <span className="font-medium text-foreground">{FOUNDER.name}</span>, {FOUNDER.title}
+        </figcaption>
+      </div>
+    </figure>
+  );
 }
 
 function FooterColumn({ title, links }: { title: string; links: readonly { label: string; href: string }[] }) {
@@ -46,6 +80,7 @@ export async function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-surface pb-safe">
       <div className="container-page py-12 md:py-16">
+        <FounderNote />
         <div className="grid gap-10 md:grid-cols-[1.3fr_1fr_1fr_1fr] md:gap-12">
           <div>
             <Link href="/" className="inline-flex min-h-11 items-center font-heading text-3xl font-semibold tracking-tight">
