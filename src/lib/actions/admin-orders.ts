@@ -1,9 +1,11 @@
 "use server";
 
 import { refresh, updateTag } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { CATALOG_TAG } from "@/lib/catalog";
+import { notifyOrderShipped } from "@/lib/notify";
 import {
   OrderActionError,
   changeOrderStatus,
@@ -48,6 +50,7 @@ export async function updateOrderStatus(
     const { restocked } = await changeOrderStatus(orderId, parsedAction.data, ship);
     // Stock went back up, so sold-out badges on the storefront may change.
     if (restocked) updateTag(CATALOG_TAG);
+    if (parsedAction.data === "ship") after(() => notifyOrderShipped(orderId));
     refresh();
     return { ok: true };
   } catch (err) {

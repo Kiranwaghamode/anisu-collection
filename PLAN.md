@@ -19,7 +19,7 @@
 | 2 | Storefront (browse products) | ✅ Done | `12945f3` |
 | 3 | Cart and COD checkout | ✅ Done | `03a216c` |
 | 4 | Admin panel | ✅ Done | `6f793bc` |
-| **5** | **Customer emails** | 🟡 Built, waiting for Resend keys to test a real send | — |
+| 5 | Customer emails | ✅ Done | (this commit) |
 | **6** | **SEO, legal pages and launch** | ⏳ To do | — |
 | — | Telegram owner alert | 💤 Later | — |
 | — | Razorpay online payments | 💤 Later | — |
@@ -61,32 +61,17 @@
 - Categories: add, edit, reorder (home tile order), delete (blocked while in use)
 - Checkout: "Order on WhatsApp" when COD isn't available (above ₹10,000)
 
-### Phase 5: Customer emails (built, not yet committed)
+### Phase 5: Customer emails
 - `lib/email.ts` (Resend) + React Email templates in `src/emails/`:
   - **Order placed:** items with photos, totals, payment, address, "Track your order" button
   - **Order shipped** (sent when the owner clicks Mark shipped): courier, tracking number, tracking link
 - Sent with `after()` once the response has gone out; if Resend is down or keys are missing, the order or
   admin action still succeeds and the problem is logged
 - `scripts/preview-notifications.tsx AC1001` renders both emails to `.previews/` for checking the design
-- Tested: the emails render inside Next.js and reach Resend (rejected with a fake key, as expected), and
-  the order still goes through. Still to check: a real send with the owner's key.
-
----
-
-## 🟡 PHASE 5: Customer emails (finish)
-
-### Remaining
-1. Owner adds `RESEND_API_KEY` and `EMAIL_FROM` to `.env` (not `.env.example`).
-2. Send one real "placed" and one "shipped" email and check them in Gmail on a phone (looks, spam folder, links).
-3. Commit Phase 5.
-
-### Done when
-- [ ] The customer receives the "placed" email, and the "shipped" email after Mark shipped
-
-### Needs from the owner
-- A Resend account (free tier: 3,000 emails/month, 100/day): `RESEND_API_KEY`
-- `EMAIL_FROM`, e.g. `Anisu Collection <orders@yourdomain.in>`. Until the domain is verified in Resend,
-  emails can only be sent to the Resend account owner's own address (fine for testing).
+- Tested 2026-10-08 with the owner's key: test order AC1001 sent the "placed" email through the real checkout,
+  and the "shipped" email arrived too; both checked by the owner in Gmail
+- Replies go to `STORE_EMAIL` (owner's Gmail). Sender is `onboarding@resend.dev` until the domain is verified
+  in Resend, which only delivers to the owner's own address, so **verifying the domain is a launch step** (Phase 6)
 
 ---
 

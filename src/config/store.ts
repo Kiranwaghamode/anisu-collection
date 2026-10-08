@@ -3,11 +3,11 @@
 
 export const STORE_NAME = "Anisu Collection";
 export const STORE_TAGLINE = "Handpicked sarees & kurtis";
-export const STORE_PHONE = "+91 98765 43210";
-export const STORE_EMAIL = "hello@anisucollection.in";
+export const STORE_PHONE = "+91 95359 80590";
+export const STORE_EMAIL = "kiranwaghamode99@gmail.com";
 /** WhatsApp number in international format, digits only (used in wa.me links). */
-export const STORE_WHATSAPP = "919876543210";
-export const STORE_ADDRESS = "Shop No. 1, Placeholder Road, Pune, Maharashtra 411001";
+export const STORE_WHATSAPP = "919535980590";
+export const STORE_ADDRESS = "Uttara halli, Bangalore";
 export const STORE_INSTAGRAM = "https://instagram.com/anisucollection";
 
 /** Prefix for human-readable order numbers, e.g. AC1001. */
