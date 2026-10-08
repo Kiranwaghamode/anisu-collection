@@ -112,7 +112,10 @@ and I'll help.
 ### 2. Real photos
 - Upload your product photos in `/admin` → Products, and category photos in `/admin` → Categories
 - Replace the two home page photos (`HERO_IMAGE`, `STORY_IMAGE` in `src/app/(store)/page.tsx`)
-- Delete or hide the 12 sample products, and cancel test order **AC1001** in `/admin` (puts the stock back)
+- ✅ 13 of the client's Meesho products imported (Hidden, stock 0) with `scripts/import-products.ts`; sample
+  products, test order AC1001 and unused sample categories deleted. Still to do: set stock and switch each
+  product Live in `/admin`; add the 2 products no longer on Meesho by hand; decide on test order AC1002 and the
+  hidden sample Paithani saree it uses
 
 ### 3. Domain
 - Buy a domain (e.g. `anisucollection.in`) from GoDaddy, Hostinger or Namecheap
