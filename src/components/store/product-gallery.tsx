@@ -77,7 +77,7 @@ export function ProductGallery({
         <div
           ref={trackRef}
           onScroll={(e) => setActive(slideIndex(e.currentTarget))}
-          className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain bg-muted md:rounded-md"
+          className="no-scrollbar relative flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain bg-muted md:rounded-md"
           aria-roledescription="carousel"
           aria-label={`${name} images`}
         >
@@ -156,14 +156,14 @@ function ZoomViewer({
     >
       <DialogContent
         showCloseButton={false}
-        className="top-0 left-0 block h-dvh w-screen max-w-none translate-x-0 translate-y-0 rounded-none bg-surface p-0 ring-0 sm:max-w-none"
+        className="top-0 left-0 block h-dvh w-full max-w-none translate-x-0 translate-y-0 rounded-none bg-surface p-0 ring-0 sm:max-w-none"
       >
         <DialogTitle className="sr-only">{name}</DialogTitle>
         <DialogDescription className="sr-only">Tap an image to zoom in. Swipe to see more.</DialogDescription>
         <div
           ref={attachTrack}
           onScroll={(e) => setActive(slideIndex(e.currentTarget))}
-          className="no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto"
+          className="no-scrollbar relative flex h-full snap-x snap-mandatory overflow-x-auto"
         >
           {images.map((src, i) => (
             <ZoomSlide key={src} src={src} alt={`${name}, image ${i + 1}`} />

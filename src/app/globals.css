@@ -77,6 +77,9 @@
   }
   html {
     @apply font-sans;
+    /* Safety net against sideways scrolling on phones; set on html and body because
+       iOS Safari ignores it on body alone. `clip` (not hidden) keeps position: sticky working. */
+    overflow-x: clip;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
   }
@@ -119,7 +122,11 @@
   }
 }
 
-/* Swipe rows: keep native scrolling, hide the bar. */
+/*
+ * Swipe rows: keep native scrolling, hide the bar.
+ * Swipe rows must also be `relative`: an absolutely positioned child (e.g. sr-only
+ * text) otherwise belongs to the page, not the row, and widens the page on phones.
+ */
 @utility no-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar {

@@ -101,7 +101,7 @@ export function ProductGrid({ products, eagerFirst = false }: { products: Produc
 /** Swipeable row on phones, plain grid on desktop. */
 export function ProductRow({ products }: { products: ProductCardData[] }) {
   return (
-    <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:px-0">
+    <ul className="no-scrollbar relative -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:px-0">
       {products.map((p) => (
         <li key={p.id} className="w-[44%] shrink-0 snap-start md:w-auto">
           <ProductCard product={p} sizes="(max-width: 768px) 45vw, 25vw" />

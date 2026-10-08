@@ -50,7 +50,7 @@ async function Orders({ searchParams }: Pick<PageProps<"/admin">, "searchParams"
         />
       </Form>
 
-      <nav aria-label="Order status" className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
+      <nav aria-label="Order status" className="no-scrollbar relative -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
         {ORDER_TABS.map((t) => (
           <Link
             key={t.value}
